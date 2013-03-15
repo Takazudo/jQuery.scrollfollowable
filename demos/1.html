@@ -12,6 +12,8 @@ $(function() {
 
 	var $attach = $('#attach');
 	var $destroy = $('#destroy');
+	var $remove = $('#remove');
+	var $counter = $('#counter');
 
 	var $followbase = $('#followbase');
 	var instance;
@@ -22,14 +24,22 @@ $(function() {
 			holder: '#body'
 		});
 		instance = $followbase.data('scrollfollowable');
+		instance.on('update', function() {
+			$counter.html( $counter.html()*1 + 1 );
+		});
 	};
 
 	var destroy = function() {
 		instance.destroy();
 	};
 
+	var remove = function() {
+		$followbase.remove();
+	};
+
 	$attach.on('click', attach);
 	$destroy.on('click', destroy);
+	$remove.on('click', remove);
 
 	attach();
 
@@ -89,7 +99,9 @@ $(function() {
 
 <div class="utils">
 	<button id="attach">attach</button>
-	<button id="destroy">destroy</button>
+	<button id="destroy">destroy</button> /
+	<button id="remove">remove element</button> /
+	<span>update: <b id="counter">0</b></span>
 </div>
 
 </body>

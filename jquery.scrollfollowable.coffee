@@ -71,9 +71,9 @@ do ($=jQuery, window=window, document=document) ->
       @_eventify()
 
     _eventify: ->
-      $window.on 'resize orientationchange', =>
+      $window.bind 'resize orientationchange', =>
         @trigger 'resize'
-      $window.on 'scroll', =>
+      $window.bind 'scroll', =>
         @trigger 'scroll'
 
   ns.prepareWindow = ->
@@ -173,11 +173,21 @@ do ($=jQuery, window=window, document=document) ->
         if lastInnerFixed is true
           props = @_originalCssProps
 
-      if props
+      if props and (@anyInnerCssUpdated props)
         @$inner.css props
+        @trigger 'update'
+        @_lastInnerProps = props
 
-      @trigger 'update'
       @
+
+    anyInnerCssUpdated: (props) ->
+      return true if not @_lastInnerProps?
+      a = @_lastInnerProps
+      b = props
+      for prop in ['position', 'top', 'left']
+        if a[prop] isnt b[prop]
+          return true
+      false
 
     destroy: ->
       ns.window.off 'resize scroll', @update
@@ -188,12 +198,18 @@ do ($=jQuery, window=window, document=document) ->
   # ============================================================
   # bridge to plugin
   
-  $.fn.scrollfollowable = (options) ->
-    @each (i, el) ->
-      $el = $(el)
-      instance = new ns.Scrollfollowable $el, options
-      $el.data 'scrollfollowable', instance
-      @
+  do ->
+    dataKey = 'scrollfollowable'
+  
+    $.fn.scrollfollowable = (options) ->
+      @each (i, el) ->
+        $el = $(el)
+        prevInstance = $el.data dataKey
+        if prevInstance
+          prevInstance.destroy()
+        instance = new ns.Scrollfollowable $el, options
+        $el.data dataKey, instance
+        @
   
 
   # ============================================================

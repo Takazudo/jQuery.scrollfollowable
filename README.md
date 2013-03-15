@@ -1,8 +1,6 @@
 # jQuery.scrollfollowable
 
-NOTE: STILL IN DEV.
-
-follow scroll
+element follows scroll
 
 ## Browser supports
 
@@ -10,7 +8,7 @@ IE7+
 
 ## Required
 
-jQuery 1.9.1
+jQuery 1.9.1 (>=1.6.3)
 
 ## License
 

@@ -1,6 +1,6 @@
 /*! jQuery.scrollfollowable (https://github.com/Takazudo/jQuery.scrollfollowable)
  * lastupdate: 2013-03-15
- * version: 0.0.0
+ * version: 0.1.0
  * author: 'Takazudo' Takeshi Takatsudo <takazudo@gmail.com>
  * License: MIT */
 (function() {
@@ -104,10 +104,10 @@
 
       Window.prototype._eventify = function() {
         var _this = this;
-        $window.on('resize orientationchange', function() {
+        $window.bind('resize orientationchange', function() {
           return _this.trigger('resize');
         });
-        return $window.on('scroll', function() {
+        return $window.bind('scroll', function() {
           return _this.trigger('scroll');
         });
       };
@@ -213,11 +213,29 @@
             props = this._originalCssProps;
           }
         }
-        if (props) {
+        if (props && (this.anyInnerCssUpdated(props))) {
           this.$inner.css(props);
+          this.trigger('update');
+          this._lastInnerProps = props;
         }
-        this.trigger('update');
         return this;
+      };
+
+      Scrollfollowable.prototype.anyInnerCssUpdated = function(props) {
+        var a, b, prop, _i, _len, _ref;
+        if (this._lastInnerProps == null) {
+          return true;
+        }
+        a = this._lastInnerProps;
+        b = props;
+        _ref = ['position', 'top', 'left'];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          prop = _ref[_i];
+          if (a[prop] !== b[prop]) {
+            return true;
+          }
+        }
+        return false;
       };
 
       Scrollfollowable.prototype.destroy = function() {
@@ -230,16 +248,25 @@
       return Scrollfollowable;
 
     })(ns.Event);
-    $.fn.scrollfollowable = function(options) {
-      return this.each(function(i, el) {
-        var $el, instance;
-        $el = $(el);
-        instance = new ns.Scrollfollowable($el, options);
-        $el.data('scrollfollowable', instance);
-        return this;
-      });
-    };
-    return $.ScrollfollowableNs = ns;
+    (function() {
+      var dataKey;
+      dataKey = 'scrollfollowable';
+      return $.fn.scrollfollowable = function(options) {
+        return this.each(function(i, el) {
+          var $el, instance, prevInstance;
+          $el = $(el);
+          prevInstance = $el.data(dataKey);
+          if (prevInstance) {
+            prevInstance.destroy();
+          }
+          instance = new ns.Scrollfollowable($el, options);
+          $el.data(dataKey, instance);
+          return this;
+        });
+      };
+    })();
+    $.ScrollfollowableNs = ns;
+    return $.Scrollfollowable = ns.Scrollfollowable;
   })(jQuery, window, document);
 
 }).call(this);

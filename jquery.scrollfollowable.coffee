@@ -200,4 +200,5 @@ do ($=jQuery, window=window, document=document) ->
   # spread to global
   
   $.ScrollfollowableNs = ns
+  $.Scrollfollowable = ns.Scrollfollowable
 

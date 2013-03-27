@@ -1,6 +1,6 @@
 /*! jQuery.scrollfollowable (https://github.com/Takazudo/jQuery.scrollfollowable)
  * lastupdate: 2013-03-27
- * version: 0.1.1
+ * version: 0.1.2
  * author: 'Takazudo' Takeshi Takatsudo <takazudo@gmail.com>
  * License: MIT */
 (function() {
@@ -33,10 +33,11 @@
       };
 
       Event.prototype.once = function(ev, callback) {
-        return this.on(ev, function() {
+        this.on(ev, function() {
           this.off(ev, arguments.callee);
           return callback.apply(this, arguments);
         });
+        return this;
       };
 
       Event.prototype.trigger = function() {
@@ -107,9 +108,10 @@
         $window.bind('resize orientationchange', function() {
           return _this.trigger('resize');
         });
-        return $window.bind('scroll', function() {
+        $window.bind('scroll', function() {
           return _this.trigger('scroll');
         });
+        return this;
       };
 
       return Window;
@@ -122,6 +124,38 @@
       ns.window = new ns.Window;
       return this;
     };
+    ns.HeightWatcher = (function(_super) {
+
+      __extends(HeightWatcher, _super);
+
+      function HeightWatcher($el) {
+        this.$el = $el;
+        this._lastHeight = this.$el.outerHeight();
+        this.tick();
+      }
+
+      HeightWatcher.prototype.tick = function() {
+        var _this = this;
+        setTimeout(function() {
+          _this.check();
+          return _this.tick();
+        }, 250);
+        return this;
+      };
+
+      HeightWatcher.prototype.check = function() {
+        var h;
+        h = this.$el.outerHeight();
+        if (this._lastHeight !== h) {
+          this._lastHeight = h;
+          this.trigger('changedetected');
+        }
+        return this;
+      };
+
+      return HeightWatcher;
+
+    })(ns.Event);
     ns.Scrollfollowable = (function(_super) {
 
       __extends(Scrollfollowable, _super);
@@ -132,7 +166,8 @@
         mintopmargin: 10,
         minbottommargin: 10,
         keepholderheight: true,
-        originalcontainerheight: 'auto'
+        originalcontainerheight: 'auto',
+        watchinnerheightchange: false
       };
 
       function Scrollfollowable($el, options) {
@@ -144,6 +179,9 @@
         this._rememberOriginalCss();
         this._eventify();
         this.update();
+        if (this.options.watchinnerheightchange) {
+          this.startWatchingHeight();
+        }
       }
 
       Scrollfollowable.prototype._prepareEls = function() {
@@ -166,6 +204,12 @@
 
       Scrollfollowable.prototype._eventify = function() {
         ns.window.on('resize scroll', this.update);
+        return this;
+      };
+
+      Scrollfollowable.prototype.startWatchingHeight = function() {
+        this._heightWatcher = new ns.HeightWatcher(this.$inner);
+        this._heightWatcher.on('changedetected', this.update);
         return this;
       };
 
@@ -202,8 +246,8 @@
           props = {};
           if (!lastInnerFixed) {
             props.position = 'fixed';
-            this.fixContainerHeight();
           }
+          this.fixContainerHeight();
           if (this.isInnerOverHolder()) {
             props.top = -this._innerOverAmount;
           } else {

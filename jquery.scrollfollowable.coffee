@@ -17,12 +17,13 @@ do ($=jQuery, window=window, document=document) ->
       for name in evs
         @_callbacks[name] or= []
         @_callbacks[name].push(callback)
-      @
+      return this
 
     once: (ev, callback) ->
       @on ev, ->
         @off(ev, arguments.callee)
         callback.apply(@, arguments)
+      return this
 
     trigger: (args...) ->
       ev = args.shift()
@@ -31,7 +32,7 @@ do ($=jQuery, window=window, document=document) ->
       for callback in list
         if callback.apply(@, args) is false
           break
-      @
+      return this
 
     off: (ev, callback) ->
       unless ev
@@ -53,7 +54,7 @@ do ($=jQuery, window=window, document=document) ->
           list.splice(i, 1)
           @_callbacks[name] = list
           break
-      @
+      return this
 
   # ============================================================
   # utils
@@ -75,11 +76,35 @@ do ($=jQuery, window=window, document=document) ->
         @trigger 'resize'
       $window.bind 'scroll', =>
         @trigger 'scroll'
+      return this
 
   ns.prepareWindow = ->
     return @ if ns.window?
     ns.window = new ns.Window
-    @
+    return this
+
+  # ============================================================
+  # HeightWatcher
+
+  class ns.HeightWatcher extends ns.Event
+
+    constructor: (@$el) ->
+      @_lastHeight = @$el.outerHeight()
+      @tick()
+
+    tick: ->
+      setTimeout =>
+        @check()
+        @tick()
+      , 250
+      return this
+
+    check: ->
+      h = @$el.outerHeight()
+      if @_lastHeight isnt h
+        @_lastHeight = h
+        @trigger 'changedetected'
+      return this
 
   # ============================================================
   # Scrollfollowable
@@ -93,6 +118,7 @@ do ($=jQuery, window=window, document=document) ->
       minbottommargin: 10
       keepholderheight: true
       originalcontainerheight: 'auto'
+      watchinnerheightchange: false
 
     constructor: (@$el, options) ->
       @options = $.extend {}, @defaults, options
@@ -101,11 +127,13 @@ do ($=jQuery, window=window, document=document) ->
       @_rememberOriginalCss()
       @_eventify()
       @update()
+      if @options.watchinnerheightchange
+        @startWatchingHeight()
 
     _prepareEls: ->
       @$inner = @$el.find @options.inner
       @$holder = $document.find @options.holder
-      @
+      return this
 
     _rememberOriginalCss: ->
       @_originalInnerCssProps =
@@ -114,11 +142,16 @@ do ($=jQuery, window=window, document=document) ->
         left: @$inner.css('left')
       @_originalContainerCssProps =
         height: @options.originalcontainerheight
-      @
+      return this
 
     _eventify: ->
       ns.window.on 'resize scroll', @update
-      @
+      return this
+
+    startWatchingHeight: ->
+      @_heightWatcher = new ns.HeightWatcher @$inner
+      @_heightWatcher.on 'changedetected', @update
+      return this
 
     isInnerOverHolder: ->
 
@@ -158,7 +191,8 @@ do ($=jQuery, window=window, document=document) ->
 
         unless lastInnerFixed
           props.position = 'fixed'
-          @fixContainerHeight()
+
+        @fixContainerHeight()
 
         # calc top
         if @isInnerOverHolder()
@@ -184,7 +218,7 @@ do ($=jQuery, window=window, document=document) ->
         @trigger 'update'
         @_lastInnerProps = props
 
-      @
+      return this
 
     fixContainerHeight: ->
       return this unless @options.keepholderheight
@@ -209,7 +243,7 @@ do ($=jQuery, window=window, document=document) ->
       ns.window.off 'resize scroll', @update
       @$inner.css @_originalInnerCssProps
       @$el.data 'scrollfollowable', null
-      @
+      return this
 
   # ============================================================
   # bridge to plugin
@@ -225,7 +259,7 @@ do ($=jQuery, window=window, document=document) ->
           prevInstance.destroy()
         instance = new ns.Scrollfollowable $el, options
         $el.data dataKey, instance
-        @
+        return this
   
 
   # ============================================================

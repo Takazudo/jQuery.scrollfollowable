@@ -21,7 +21,8 @@ $(function() {
 	var attach = function() {
 		$followbase.scrollfollowable({
 			inner: '#followbase-inner',
-			holder: '#body'
+			holder: '#body',
+			watchinnerheightchange: true
 		});
 		instance = $followbase.data('scrollfollowable');
 		instance.on('update', function() {
@@ -43,6 +44,7 @@ $(function() {
 
 	attach();
 
+	// expand inner height to test
 	(function() {
 		var $follwbaseinside = $('#follwbaseinside');
 		setTimeout(function() {

@@ -91,6 +91,8 @@ do ($=jQuery, window=window, document=document) ->
       holder: 'body'
       mintopmargin: 10
       minbottommargin: 10
+      keepholderheight: true
+      originalcontainerheight: 'auto'
 
     constructor: (@$el, options) ->
       @options = $.extend {}, @defaults, options
@@ -106,10 +108,12 @@ do ($=jQuery, window=window, document=document) ->
       @
 
     _rememberOriginalCss: ->
-      @_originalCssProps =
+      @_originalInnerCssProps =
         position: @$inner.css('position')
         top: @$inner.css('top')
         left: @$inner.css('left')
+      @_originalContainerCssProps =
+        height: @options.originalcontainerheight
       @
 
     _eventify: ->
@@ -154,6 +158,7 @@ do ($=jQuery, window=window, document=document) ->
 
         unless lastInnerFixed
           props.position = 'fixed'
+          @fixContainerHeight()
 
         # calc top
         if @isInnerOverHolder()
@@ -171,7 +176,8 @@ do ($=jQuery, window=window, document=document) ->
         @innerFixed = false
 
         if lastInnerFixed is true
-          props = @_originalCssProps
+          props = @_originalInnerCssProps
+          @unFixContainerHeight()
 
       if props and (@anyInnerCssUpdated props)
         @$inner.css props
@@ -179,6 +185,16 @@ do ($=jQuery, window=window, document=document) ->
         @_lastInnerProps = props
 
       @
+
+    fixContainerHeight: ->
+      return this unless @options.keepholderheight
+      @$el.height @$inner.outerHeight()
+      return this
+
+    unFixContainerHeight: ->
+      return this unless @options.keepholderheight
+      @$el.css @_originalContainerCssProps
+      return this
 
     anyInnerCssUpdated: (props) ->
       return true if not @_lastInnerProps?
@@ -191,7 +207,7 @@ do ($=jQuery, window=window, document=document) ->
 
     destroy: ->
       ns.window.off 'resize scroll', @update
-      @$inner.css @_originalCssProps
+      @$inner.css @_originalInnerCssProps
       @$el.data 'scrollfollowable', null
       @
 

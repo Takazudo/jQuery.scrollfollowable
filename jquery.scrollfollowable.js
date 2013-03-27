@@ -1,6 +1,6 @@
 /*! jQuery.scrollfollowable (https://github.com/Takazudo/jQuery.scrollfollowable)
- * lastupdate: 2013-03-15
- * version: 0.1.0
+ * lastupdate: 2013-03-27
+ * version: 0.1.1
  * author: 'Takazudo' Takeshi Takatsudo <takazudo@gmail.com>
  * License: MIT */
 (function() {
@@ -130,7 +130,9 @@
         inner: '> *',
         holder: 'body',
         mintopmargin: 10,
-        minbottommargin: 10
+        minbottommargin: 10,
+        keepholderheight: true,
+        originalcontainerheight: 'auto'
       };
 
       function Scrollfollowable($el, options) {
@@ -151,10 +153,13 @@
       };
 
       Scrollfollowable.prototype._rememberOriginalCss = function() {
-        this._originalCssProps = {
+        this._originalInnerCssProps = {
           position: this.$inner.css('position'),
           top: this.$inner.css('top'),
           left: this.$inner.css('left')
+        };
+        this._originalContainerCssProps = {
+          height: this.options.originalcontainerheight
         };
         return this;
       };
@@ -197,6 +202,7 @@
           props = {};
           if (!lastInnerFixed) {
             props.position = 'fixed';
+            this.fixContainerHeight();
           }
           if (this.isInnerOverHolder()) {
             props.top = -this._innerOverAmount;
@@ -210,7 +216,8 @@
         } else {
           this.innerFixed = false;
           if (lastInnerFixed === true) {
-            props = this._originalCssProps;
+            props = this._originalInnerCssProps;
+            this.unFixContainerHeight();
           }
         }
         if (props && (this.anyInnerCssUpdated(props))) {
@@ -218,6 +225,22 @@
           this.trigger('update');
           this._lastInnerProps = props;
         }
+        return this;
+      };
+
+      Scrollfollowable.prototype.fixContainerHeight = function() {
+        if (!this.options.keepholderheight) {
+          return this;
+        }
+        this.$el.height(this.$inner.outerHeight());
+        return this;
+      };
+
+      Scrollfollowable.prototype.unFixContainerHeight = function() {
+        if (!this.options.keepholderheight) {
+          return this;
+        }
+        this.$el.css(this._originalContainerCssProps);
         return this;
       };
 
@@ -240,7 +263,7 @@
 
       Scrollfollowable.prototype.destroy = function() {
         ns.window.off('resize scroll', this.update);
-        this.$inner.css(this._originalCssProps);
+        this.$inner.css(this._originalInnerCssProps);
         this.$el.data('scrollfollowable', null);
         return this;
       };

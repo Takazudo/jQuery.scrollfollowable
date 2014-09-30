@@ -4,8 +4,8 @@ element follows scroll
 
 ## Demos
 
-* [demo1](http://takazudo.github.com/jQuery.scrollfollowable/demos/1.html)
-* [demo2](http://takazudo.github.com/jQuery.scrollfollowable/demos/2.html)
+* [demo1](http://takazudo.github.com/jQuery.scrollfollowable/demos/basic/1.html)
+* [demo2](http://takazudo.github.com/jQuery.scrollfollowable/demos/basic/2.html)
 
 ## Browser supports
 

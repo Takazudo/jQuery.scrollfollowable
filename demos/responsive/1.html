@@ -5,10 +5,18 @@
 <title></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="style.css">
-<script src="../libs/jquery/1.9.1/jquery.js"></script>
-<script src="../jquery.scrollfollowable.js"></script>
+<script src="libs/modernizr.js"></script>
+<script src="../../libs/jquery/1.9.1/jquery.js"></script>
+<script src="../../jquery.scrollfollowable.js"></script>
+<script src="libs/eveeve.js"></script>
+<script src="libs/viewportSize.js"></script>
+<script src="libs/jquery.viewportwatcher.js"></script>
 <script>
 $(function() {
+
+	if(!Modernizr.mq('only all')) {
+		return;
+	}
 
 	var $attach = $('#attach');
 	var $destroy = $('#destroy');
@@ -21,7 +29,9 @@ $(function() {
 	var attach = function() {
 		$followbase.scrollfollowable({
 			inner: '#followbase-inner',
-			holder: '#body'
+			holder: '#body',
+      mintopmargin: 10,
+      minbottommargin: 0
 		});
 		instance = $followbase.data('scrollfollowable');
 		instance.on('update', function() {
@@ -30,6 +40,7 @@ $(function() {
 	};
 
 	var destroy = function() {
+		if(!instance) { return; }
 		instance.destroy();
 	};
 
@@ -41,7 +52,25 @@ $(function() {
 	$destroy.on('click', destroy);
 	$remove.on('click', remove);
 
-	attach();
+	
+	var watcher = new $.ViewportWatcher(function(o) {
+		o.when(function(width) {
+			if(width < 768) { return true; }
+			return false;
+		}, {
+			match: function() {
+				destroy();
+			}
+		});
+		o.when(function(width) {
+			if(768 <= width) { return true; }
+			return false;
+		}, {
+			match: function() {
+				attach();
+			}
+		});
+	});
 
 });
 </script>
@@ -50,14 +79,14 @@ $(function() {
 
 <br> <!-- for test -->
 
-<div class="all">
+<div class="all"><div>
 
 	<div class="header">
 		header blah blah
 	</div>
 
-	<div class="body" id="body">
-		<div class="leftcol">
+	<div class="body" id="body"><!--
+		--><div class="leftcol"><div>
 			The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. <br>
 			The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. <br>
 			The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. <br>
@@ -69,16 +98,18 @@ $(function() {
 			The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. <br>
 			The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. <br>
 			The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. <br>
-		</div>
-		<div class="rightcol">
-			The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. 
+		</div></div><!--
+		--><div class="rightcol"><div>
 			<div class="followbase" id="followbase">
 				<div class="followbase-inner" id="followbase-inner">
-					The quick brown fox blah blah blah. The quick brown fox blah blah blah.
+					The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. 
 				</div>
 			</div>
-		</div>
-	</div>
+			<!--
+			The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. 
+			-->
+		</div></div><!--
+	--></div>
 
 	<div class="footer">
 		footer blah blah<br>
@@ -95,7 +126,7 @@ $(function() {
 		The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. The quick brown fox blah blah blah. <br>
 	</div>
 
-</div>
+</div></div>
 
 <div class="utils">
 	<button id="attach">attach</button>

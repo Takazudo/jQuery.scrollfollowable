@@ -35,6 +35,7 @@ $(function() {
 
 	var attach = function() {
 		if(instance) {
+			instance.update();
 			return;
 		}
 		$followbase.scrollfollowable({

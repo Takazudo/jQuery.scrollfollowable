@@ -1,5 +1,5 @@
 /*! jQuery.scrollfollowable (https://github.com/Takazudo/jQuery.scrollfollowable)
- * lastupdate: 2013-03-27
+ * lastupdate: 2014-09-30
  * version: 0.1.2
  * author: 'Takazudo' Takeshi Takatsudo <takazudo@gmail.com>
  * License: MIT */
@@ -249,7 +249,7 @@
           }
           this.fixContainerHeight();
           if (this.isInnerOverHolder()) {
-            props.top = -this._innerOverAmount;
+            props.top = -this._innerOverAmount + minTopMargin;
           } else {
             props.top = minTopMargin;
           }
@@ -308,6 +308,7 @@
       Scrollfollowable.prototype.destroy = function() {
         ns.window.off('resize scroll', this.update);
         this.$inner.css(this._originalInnerCssProps);
+        this.unFixContainerHeight();
         this.$el.data('scrollfollowable', null);
         return this;
       };

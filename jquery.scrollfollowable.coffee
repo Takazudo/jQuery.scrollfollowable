@@ -167,7 +167,7 @@ do ($=jQuery, window=window, document=document) ->
       innerH = @$inner.outerHeight()
 
       innerTop = scrolled + minTopMargin + innerH + minBottomMargin
-
+      
       holded = holdableTopLimit > innerTop
 
       # store over amount
@@ -196,7 +196,7 @@ do ($=jQuery, window=window, document=document) ->
 
         # calc top
         if @isInnerOverHolder()
-          props.top = - @_innerOverAmount
+          props.top = - @_innerOverAmount + minTopMargin
         else
           props.top = minTopMargin
 
@@ -242,6 +242,7 @@ do ($=jQuery, window=window, document=document) ->
     destroy: ->
       ns.window.off 'resize scroll', @update
       @$inner.css @_originalInnerCssProps
+      @unFixContainerHeight()
       @$el.data 'scrollfollowable', null
       return this
 

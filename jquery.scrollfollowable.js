@@ -1,6 +1,6 @@
 /*! jQuery.scrollfollowable (https://github.com/Takazudo/jQuery.scrollfollowable)
  * lastupdate: 2014-09-30
- * version: 0.1.3
+ * version: 0.1.4
  * author: 'Takazudo' Takeshi Takatsudo <takazudo@gmail.com>
  * License: MIT */
 (function() {

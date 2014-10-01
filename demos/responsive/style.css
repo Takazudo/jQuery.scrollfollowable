@@ -79,6 +79,19 @@ body {
 	}
 	
 
+.bottomFixer {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	padding: 10px;
+	font-size: 20px;
+	text-align: center;
+	color: #fff;
+	background: #333;
+	display: none;
+}
+
 
 @media screen and (max-width:768px) { 
 	.all {
@@ -100,6 +113,9 @@ body {
 		}
 	.followbase-inner {
 		width: auto;
+	}
+	.bottomFixer {
+		display: block;
 	}
 }
 @media screen and (min-width:768px) and (max-width:1024px) {

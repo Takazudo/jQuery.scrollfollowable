@@ -1,0 +1,152 @@
+* {
+  margin:0;
+  padding:0;
+}
+
+.all {
+  width:800px;
+  margin:0 auto;
+  text-align:left;
+}
+
+.tableSet {
+}
+  .tableSet table {
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+  }
+  .tableSet .headBase {
+    position: relative;
+  }
+  .tableSet .headFloater {
+    background: #fff;
+    border-bottom: 1px solid #000;
+    z-index: 2;
+  }
+  .tableSet .headBorder {
+    position: absolute;
+    left: 149px;
+    top: 0;
+    bottom: 0;
+    border-left: 1px solid #000;
+  }
+  .tableSet .headLeftButton,
+  .tableSet .headRightButton {
+    position: absolute;
+    top: 20px;
+    bottom: 20px;
+    width: 30px;
+    text-align: center;
+    background: orange;
+    cursor: pointer;
+    line-height: 160px;
+  }
+  .tableSet .headLeftButton {
+    left: -50px;
+  }
+  .tableSet .headRightButton {
+    right: -50px;
+  }
+  .tableSet .head {
+    margin: 0 0 0 150px;
+    width: 650px;
+    overflow-x:scroll;
+  }
+    .tableSet .head table {
+      width: 1600px;
+    }
+    .tableSet .head td {
+      width: 200px;
+      border-top: 1px solid #000;
+      border-right: 1px solid #000;
+      text-align: center;
+      height: 200px;
+      background: #ddd;
+    }
+  .tableSet .tbodyArea {
+    position: relative;
+  }
+    .tableSet .sideHeadingCells {
+      width: 150px;
+      position: absolute;
+      left: 0;
+      top: -1px;
+    }
+      .tableSet .sideHeadingCells table {
+        width: 100%;
+        border-bottom: 1px solid #000;
+      }
+      .tableSet .sideHeadingCells td {
+        border-top: 1px solid #000;
+        border-right: 1px solid #000;
+        height: 100px;
+        text-align: center;
+        background: #ddd;
+      }
+    .tableSet .main {
+      overflow-x: scroll;
+      margin: 0 0 0 150px;
+      width: 650px;
+    }
+      .tableSet .main table {
+        width: 1600px;
+      }
+      .tableSet .main td {
+        width: 200px;
+        height: 100px;
+        border-right: 1px solid #000;
+        border-bottom: 1px solid #000;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+body {
+  text-align:center;
+}
+
+
+.header {
+  border-bottom:1px solid #000;
+  padding:20px;
+}
+.body {
+  overflow:hidden;
+  *zoom:1; /* ie */
+}
+  .leftcol {
+    float:left;
+    width:500px;
+    padding:20px;
+    border-right:1px solid #000;
+  }
+  .rightcol {
+    float:left;
+    width:219px;;
+    padding:20px;
+  }
+.footer {
+  border-top:1px solid #000;
+  padding:20px;
+}
+
+.followbase {
+  position:relative;
+  background:pink;
+  *zoom:1; /* ie */
+}
+  .followbase-inner {
+    border:5px solid #f00;
+    padding:10px;
+    width:189px;
+    height:auto;
+  }
+
+.utils {
+  position:fixed;
+  left:0;
+  top:0;
+  background:#333;
+  padding:10px;
+  color:#fff;
+}

@@ -42,6 +42,16 @@
     background: orange;
     cursor: pointer;
     line-height: 160px;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+  }
+  .tableSet .headLeftButton.disabled,
+  .tableSet .headRightButton.disabled {
+    cursor: default;
+    pointer-events: none;
+    opacity: .5;
   }
   .tableSet .headLeftButton {
     left: -50px;

@@ -26,6 +26,57 @@ $(function() {
       itemWidth: 0,
       maxLeft: 0
     },
+    initialize: function() {
+      this._lastLeft = 0;
+      this._eventify();
+    },
+    updateLayout: function(itemWidth, tableAreaWidth) {
+      var maxLeft = itemWidth * this.get('itemsLength') - tableAreaWidth;
+      this.set({
+        tableAreaWidth: tableAreaWidth,
+        itemWidth: itemWidth,
+        maxLeft: maxLeft
+      });
+    },
+    _eventify: function() {
+      this.listenTo(vent, 'headScrolled', function(data) {
+        if(whileScroll) { return; }
+        this.set({ left: data.left });
+        this._invokeScrollLeftChange('head');
+      });
+      this.listenTo(vent, 'bodyScrolled', function(data) {
+        if(whileScroll) { return; }
+        this.set({ left: data.left });
+        this._invokeScrollLeftChange('body');
+      });
+      this.listenTo(vent, 'scrollToLeftRequested', function() {
+        var left = this._calcNextLeft(true);
+        this.set({ left: left });
+        this._invokeScrollLeftChange('button');
+      });
+      this.listenTo(vent, 'scrollToRightRequested', function() {
+        var left = this._calcNextLeft(false);
+        this.set({ left: left });
+        this._invokeScrollLeftChange('button');
+      });
+      this.listenTo(this, 'change:left', function() {
+        var left = this.get('left');
+        var maxLeft = this.get('maxLeft');
+        if((this._lastLeft === 0) && (left !== 0)) {
+          vent.trigger('leftChangedFromMin');
+        }
+        if((this._lastLeft !== 0) && (left === 0)) {
+          vent.trigger('leftChangedToMin');
+        }
+        if((this._lastLeft === maxLeft) && (left !== maxLeft)) {
+          vent.trigger('leftChangedFromMax');
+        }
+        if((this._lastLeft !== maxLeft) && (left === maxLeft)) {
+          vent.trigger('leftChangedToMax');
+        }
+        this._lastLeft = left;
+      });
+    },
     _invokeScrollLeftChange: function(fromStr) {
       var from = {};
       from[fromStr] = true; // ex: from.button === true
@@ -65,36 +116,6 @@ $(function() {
         res = maxLeft;
       }
       return res;
-    },
-    initialize: function() {
-      this.listenTo(vent, 'headScrolled', function(data) {
-        if(whileScroll) { return; }
-        this.set({ left: data.left });
-        this._invokeScrollLeftChange('head');
-      });
-      this.listenTo(vent, 'bodyScrolled', function(data) {
-        if(whileScroll) { return; }
-        this.set({ left: data.left });
-        this._invokeScrollLeftChange('body');
-      });
-      this.listenTo(vent, 'scrollToLeftRequested', function() {
-        var left = this._calcNextLeft(true);
-        this.set({ left: left });
-        this._invokeScrollLeftChange('button');
-      });
-      this.listenTo(vent, 'scrollToRightRequested', function() {
-        var left = this._calcNextLeft(false);
-        this.set({ left: left });
-        this._invokeScrollLeftChange('button');
-      });
-    },
-    updateLayout: function(itemWidth, tableAreaWidth) {
-      var maxLeft = itemWidth * this.get('itemsLength') - tableAreaWidth;
-      this.set({
-        tableAreaWidth: tableAreaWidth,
-        itemWidth: itemWidth,
-        maxLeft: maxLeft
-      });
     }
   });
   
@@ -150,22 +171,40 @@ $(function() {
     }
   });
   
-  var Button_left = Backbone.View.extend({
+  var Button = Backbone.View.extend({
+    _class_disabled: 'disabled',
     events: {
       'click': '_clickHandler'
     },
     initialize: function() {
+      this._eventify();
+    },
+    _disable: function() {
+      this.$el.addClass(this._class_disabled);
+    },
+    _enable: function() {
+      this.$el.removeClass(this._class_disabled);
+    }
+  });
+  
+  var Button_left = Button.extend({
+    initialize: function() {
+      Button.prototype.initialize.apply(this, arguments);
+      this._disable();
+    },
+    _eventify: function() {
+      this.listenTo(vent, 'leftChangedFromMin', this._enable);
+      this.listenTo(vent, 'leftChangedToMin', this._disable);
     },
     _clickHandler: function() {
       vent.trigger('scrollToRightRequested');
     }
   });
   
-  var Button_right = Backbone.View.extend({
-    events: {
-      'click': '_clickHandler'
-    },
-    initialize: function() {
+  var Button_right = Button.extend({
+    _eventify: function() {
+      this.listenTo(vent, 'leftChangedFromMax', this._enable);
+      this.listenTo(vent, 'leftChangedToMax', this._disable);
     },
     _clickHandler: function() {
       vent.trigger('scrollToLeftRequested');

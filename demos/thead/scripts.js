@@ -1,5 +1,7 @@
 $(function() {
 
+  var whileScroll = false;
+
   var vent = _.clone(Backbone.Events);
 
   var DebugBar = Backbone.View.extend({
@@ -18,54 +20,60 @@ $(function() {
 
   var ScrollManager = Backbone.Model.extend({
     defaults: {
-      left: 0
+      left: 0,
+      itemsLength: 0,
+      tableAreaWidth: 0,
+      itemWidth: 0,
+      maxLeft: 0
     },
     _invokeScrollLeftChange: function(fromStr) {
-      vent.trigger('scrollLeftChanged', this.get('left'), {
-        from: fromStr
-      });
+      var from = {};
+      from[fromStr] = true; // ex: from.button === true
+      vent.trigger('scrollLeftChanged', this.get('left'), from);
+    },
+    _calcCurrentScrollIndex: function() {
+      var scrollLeft = this.get('left');
+      var currentMinLeft;
+      var currentMaxLeft;
+      var itemWidth = this.get('itemWidth');
+      var res = 0;
+      for(var i=0, l=8; i<l; i+=1) {
+        currentMinLeft = itemWidth * i;
+        currentMaxLeft = itemWidth * (i+1);
+        if(currentMinLeft <= scrollLeft && scrollLeft <= currentMaxLeft) {
+          res = i;
+        }
+      }
+      return res;
     },
     _calcNextLeft: function(scrollingToLeft) {
-      var scrollLeft = this.get('left');
-      var currentLeft = 0;
-      var nextLeft;
-      var itemWidth = 200;
-      var res;
-      var i = 0;
-      while(res === undefined) {
-        nextLeft = currentLeft + itemWidth;
-        if(currentLeft === scrollLeft && scrollingToLeft) {
-          res = nextLeft;
-          break;
-        }
-        if(nextLeft === scrollLeft && !scrollingToLeft) {
-          res = currentLeft;
-          break;
-        }
-        if(currentLeft < scrollLeft && scrollLeft < nextLeft) {
-          if(scrollingToLeft) {
-            res = nextLeft;
-          } else {
-            res = currentLeft;
-          }
-          break;
-        } else {
-          currentLeft = nextLeft;
-        }
-        i += 1;
-        if(i > 200) {
-          console.log('overflowed');
-          break;
-        }
+      var currentIndex = this._calcCurrentScrollIndex();
+      var nextIndex = scrollingToLeft ? (currentIndex + 1) : (currentIndex - 1);
+      //console.log(currentIndex, nextIndex, this.get('tableAreaWidth'));
+      var itemWidth = this.get('itemWidth');
+      var maxLeft = this.get('maxLeft');
+      if(nextIndex < 0) {
+        return 0;
+      }
+      if(nextIndex >= 7) {
+        //console.log('returning maxLeft!');
+        return maxLeft;
+      }
+      var res = nextIndex * itemWidth;
+      if(res > maxLeft) {
+        //console.log('maxLeft adjusted', res);
+        res = maxLeft;
       }
       return res;
     },
     initialize: function() {
       this.listenTo(vent, 'headScrolled', function(data) {
+        if(whileScroll) { return; }
         this.set({ left: data.left });
         this._invokeScrollLeftChange('head');
       });
       this.listenTo(vent, 'bodyScrolled', function(data) {
+        if(whileScroll) { return; }
         this.set({ left: data.left });
         this._invokeScrollLeftChange('body');
       });
@@ -79,18 +87,54 @@ $(function() {
         this.set({ left: left });
         this._invokeScrollLeftChange('button');
       });
+    },
+    updateLayout: function(itemWidth, tableAreaWidth) {
+      var maxLeft = itemWidth * this.get('itemsLength') - tableAreaWidth;
+      this.set({
+        tableAreaWidth: tableAreaWidth,
+        itemWidth: itemWidth,
+        maxLeft: maxLeft
+      });
     }
   });
   
   var scrollManager = new ScrollManager();
-
-  var Head = Backbone.View.extend({
   
+  var ScrollableTable = Backbone.View.extend({
     events: {
       'scroll': '_nofityScroll'
     },
     initialize: function() {
       this._eventify();
+    },
+    _updateScrollLeft: function(left, animate) {
+      left = Math.round(left);
+      if(animate) {
+        this.$el.stop().animate({
+          scrollLeft: left
+        }, {
+          duration: 400,
+          easing: 'easeInOutExpo',
+          start: function() { whileScroll = true; },
+          always: function() { whileScroll = false; }
+        });
+      } else {
+        this.$el.scrollLeft(left);
+      }
+    }
+  });
+
+  var Head = ScrollableTable.extend({
+  
+    initialize: function() {
+      ScrollableTable.prototype.initialize.apply(this, arguments);
+      var $tds = this.$('td');
+      scrollManager.set({
+        itemsLength: $tds.length
+      });
+      var itemWidth = $tds.eq(0).width() + 1; // +1 for border
+      var tableAreaWidth = this.$el.width();
+      scrollManager.updateLayout(itemWidth, tableAreaWidth);
     },
     _nofityScroll: function() {
       vent.trigger('headScrolled', {
@@ -100,7 +144,8 @@ $(function() {
     _eventify: function() {
       this.listenTo(vent, 'scrollLeftChanged', function(left, from) {
         if(from.head) { return; }
-        this.$el.scrollLeft(left);
+        var animate = from.button ? true : false;
+        this._updateScrollLeft(left, animate);
       });
     }
   });
@@ -112,7 +157,7 @@ $(function() {
     initialize: function() {
     },
     _clickHandler: function() {
-      vent.trigger('scrollToLeftRequested');
+      vent.trigger('scrollToRightRequested');
     }
   });
   
@@ -123,17 +168,11 @@ $(function() {
     initialize: function() {
     },
     _clickHandler: function() {
-      vent.trigger('scrollToRightRequested');
+      vent.trigger('scrollToLeftRequested');
     }
   });
   
-  var Main = Backbone.View.extend({
-    events: {
-      'scroll': '_nofityScroll'
-    },
-    initialize: function() {
-      this._eventify();
-    },
+  var Main = ScrollableTable.extend({
     _nofityScroll: function() {
       vent.trigger('bodyScrolled', {
         left: this.$el.scrollLeft()
@@ -142,7 +181,8 @@ $(function() {
     _eventify: function() {
       this.listenTo(vent, 'scrollLeftChanged', function(left, from) {
         if(from.body) { return; }
-        this.$el.scrollLeft(left);
+        var animate = from.button ? true : false;
+        this._updateScrollLeft(left, animate);
       });
     }
   });
